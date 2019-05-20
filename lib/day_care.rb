@@ -1,28 +1,28 @@
 class DayCare
-  attr_reader :name,
-              :customers
+  attr_reader :name, :customers
 
-  def initialize(name)
+  def initialize(name, prices)
     @name = name
-    @customers = []
+    @prices = prices
+    @customers = {}
   end
 
   def add_customer(customer)
-    @customers << customer
+    @customers[customer.id] = customer
   end
 
-  def customer_by_id(id)
-    @customers.find do |customer|
-      customer.id == id
-    end
-  end
-
-  def unfed_pets
-    pets = @customers.map do |customer|
-      customer.pets
+  def list_unfed_pets
+    @customers.values.map do |customer|
+      customer.pets.find_all { |pet| !pet.fed? }
     end.flatten
-    pets.find_all do |pet|
-      !pet.fed?
+  end
+
+  def feed_all_pets
+    @customers.values.map do |customer|
+      customer.pets.each do |pet|
+        pet.feed
+        customer.charge(@prices[pet.type])
+      end
     end
   end
 end
